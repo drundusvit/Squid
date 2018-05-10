@@ -35,7 +35,7 @@ while True:
 	break
 
 
-with open('/media/damir/TOURO S/python3/acl.txt') as inpt:
+with open('/home/damir/Python/files/squid.conf') as inpt:
 	ListName=[]#list of all acl tables where the ip is located
 	DSTDic={}
 	https=[]
