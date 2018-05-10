@@ -5,7 +5,10 @@ import os
 import re
 import ipaddress
 
-def expand_ranges(IPRanges,ACLString):#функция дополняющая список объектов IPv4Address объектами и диапазонов адресов
+def expand_ranges(IPRanges,ACLString):#
+	'''функция дополняющая список объектов IPv4Address объектами и диапазонов адресов
+		на вход принимает list, который пополняет и сырую строку с ip
+	'''
 	PatternRange = r'\b[0-9]+(?:\.[0-9]+){3}\s*-\s*[0-9]+(?:\.[0-9]+){3}\b'
 	listrange = re.findall(PatternRange,ACLString)
 	pattern = r'\b([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s*)-(\s*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\b'
@@ -16,7 +19,11 @@ def expand_ranges(IPRanges,ACLString):#функция дополняющая с�
 	ACLString = re.sub(pattern, r'',ACLString)
 	return IPRanges, ACLString
 
-def IPStringTransform(ACLString):#return list of IPv4Networks objects
+def IPStringTransform(ACLString):
+	'''
+	на вход принимает строку с ip адресами
+	return list of IPv4Networks objects
+	'''
 	IPRanges=[]# Список для заполнения результатами парсинга
 	PatternIp = r'\b[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?:/[0-9]+)?\b'#REG для ip адресов и сеток
 #получить список диапазонов ip адресов
