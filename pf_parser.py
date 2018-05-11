@@ -1,6 +1,7 @@
 import os
 import re
 import ipaddress
+import codecs
 
 class Table():
 	clsnum=[]
@@ -76,7 +77,7 @@ def table(ACLString):
 
 
 
-with open('/home/damir/Python/files/pf.conf.oneline') as inpt:
+with open('/home/damir/Python/files/pf.conf',"r",encoding='utf-8', errors='ignore') as inpt:
 	TabList={}
 	#ListName=[]#list of all acl tables where the ip is located
 	#DSTDic={}
