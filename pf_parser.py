@@ -25,6 +25,7 @@ class Table():
 		self.clsnum.append(self.name)
 	def __del__(self):
 		print('Deleted')
+		self.clsnum.remove(self.name)
     
 
 
@@ -38,7 +39,7 @@ def expand_ranges(IPRanges,ACLString):#
 	for Var in listrange:
 		m = re.match(pattern,Var)
 		cand = list(ipaddress.summarize_address_range(ipaddress.IPv4Address(m.group(1)), ipaddress.IPv4Address(m.group(2))))
-		IPRanges.nets.extend(cand)
+		IPRanges.extend(cand)
 	ACLString = re.sub(pattern, r'',ACLString)
 	return IPRanges, ACLString
 
@@ -47,7 +48,7 @@ def IPStringTransform(ACLString):
 	на вход принимает сырую строку с ip адресами
 	return list of IPv4Networks objects
 	'''
-	IPRanges=Table()# Список для заполнения результатами парсинга
+	IPRanges=[]# Список для заполнения результатами парсинга
 	PatternIp = r'\b(?<!\!)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?:/[0-9]+)?\b'#REG для ip адресов и сеток
 	PatternNotIp = r'\b(?<=\!)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?:/[0-9]+)?\b'
 #получить список диапазонов ip адресов
@@ -56,11 +57,11 @@ def IPStringTransform(ACLString):
 	SoloIPRanges = list(map(lambda x: ipaddress.ip_network(x), listip))#преобразовать в объекты IPv4Address
 	listnotip = re.findall(PatternNotIp,ACLString)#найти все одиночные отрицательные ip и ip с масками
 	SoloNotIPRanges = list(map(lambda x: ipaddress.ip_network(x), listnotip))#преобразовать в объекты IPv4Address
-	IPRanges.add_nets(SoloIPRanges)
-	IPRanges.add_notnets(SoloNotIPRanges)
+	#IPRanges.add_nets(SoloIPRanges)
+	#IPRanges.add_notnets(SoloNotIPRanges)
 	#print(IPRanges)
 	#print(SoloNotIPRanges)
-	return IPRanges.nets, IPRanges.notnets
+	return SoloIPRanges, SoloNotIPRanges
 
 def table(ACLString):
 	table_string=Table()
@@ -70,12 +71,13 @@ def table(ACLString):
 	table_string.add_leftoveres(m.group(4))
 	table_string.nets,table_string.notnets = IPStringTransform(m.group(3))
 	#print(table_string.leftovers)
-	#print(table_string.clsnum, table_string.nets,table_string.notnets, sep='\n')
-
+	print(table_string.clsnum, table_string.nets,table_string.notnets, sep='\n')
+	return table_string
 
 
 
 with open('/home/damir/Python/files/pf.conf.oneline') as inpt:
+	TabList={}
 	#ListName=[]#list of all acl tables where the ip is located
 	#DSTDic={}
 	#https=[]
@@ -83,7 +85,11 @@ with open('/home/damir/Python/files/pf.conf.oneline') as inpt:
 		ACLString = ACLString.rstrip()
 		print(ACLString)
 		if re.search(r'(?<=^table)\s*([^\s]+)\s*(?={)',ACLString)!=None:#searching for acl tables
-			table(ACLString)
+			obj=table(ACLString)
+			TabList[obj.name]=obj
+
+print(*TabList)
+
 			#FinalList = IPStringTransform(ACLString)
 			#print(FinalList.nets)
 			#print(FinalList.notnets)
