@@ -68,11 +68,9 @@ def table(ACLString):
 	table_string=Table()
 	m = re.search(r'(?<=^(table))\s*([^\s]+)\s*({[^#]*})(.*)',ACLString)
 	table_string.add_name(m.group(2))
-	#print(table_string.name)
 	table_string.add_leftoveres(m.group(4))
 	table_string.nets,table_string.notnets = IPStringTransform(m.group(3))
-	#print(table_string.leftovers)
-	print(table_string.clsnum, table_string.nets,table_string.notnets, sep='\n')
+	print(table_string.name, table_string.nets,table_string.notnets, table_string.leftovers, sep='\n')
 	return table_string
 
 
@@ -84,8 +82,9 @@ with open('/home/damir/Python/files/pf.conf',"r",encoding='utf-8', errors='ignor
 	#https=[]
 	for ACLString in inpt:#read the file line by line
 		ACLString = ACLString.rstrip()
-		print(ACLString)
+		
 		if re.search(r'(?<=^table)\s*([^\s]+)\s*(?={)',ACLString)!=None:#searching for acl tables
+			print(ACLString)
 			obj=table(ACLString)
 			TabList[obj.name]=obj
 
