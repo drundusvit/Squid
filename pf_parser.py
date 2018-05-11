@@ -22,7 +22,7 @@ class Table():
 
 	def add_name(self,string):
 		self.name=string
-		clsnum.append(self.name)
+		self.clsnum.append(self.name)
 	def __del__(self):
 		print('Deleted')
     
@@ -66,9 +66,11 @@ def table(ACLString):
 	table_string=Table()
 	m = re.search(r'(?<=^(table))\s*([^\s]+)\s*({[^#]*})(.*)',ACLString)
 	table_string.add_name(m.group(2))
-	print(table_string.name)
+	#print(table_string.name)
 	table_string.add_leftoveres(m.group(4))
-	print(table_string.leftovers)
+	table_string.nets,table_string.notnets = IPStringTransform(m.group(3))
+	#print(table_string.leftovers)
+	#print(table_string.clsnum, table_string.nets,table_string.notnets, sep='\n')
 
 
 
