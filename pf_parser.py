@@ -23,6 +23,8 @@ class Table():
 	def add_name(self,string):
 		self.name=string
 		clsnum.append(self.name)
+	def __del__(self):
+		print('Deleted')
     
 
 
