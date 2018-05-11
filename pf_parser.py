@@ -3,6 +3,7 @@ import re
 import ipaddress
 
 class Table():
+	clsnum=[]
 
 	def __init__(self):
 		self.nets=[]
@@ -21,6 +22,7 @@ class Table():
 
 	def add_name(self,string):
 		self.name=string
+		clsnum.append(self.name)
     
 
 
