@@ -88,7 +88,6 @@ with open('/home/damir/Python/files/pf.conf',"r",encoding='utf-8', errors='ignor
 			obj=table(ACLString)
 			TabList[obj.name]=obj
 
-print(*TabList)
 
 			#FinalList = IPStringTransform(ACLString)
 			#print(FinalList.nets)
