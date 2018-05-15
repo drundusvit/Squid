@@ -74,8 +74,8 @@ def table(ACLString):
 	return table_string
 
 
-
-with open('/home/damir/Python/files/pf.conf',"r",encoding='utf-8', errors='ignore') as inpt:
+fromto=r'(?<!#)(?:[^#]*)from\s+([^#{}\s]+|{[^#]+})\s+to\s+([^#{}\s]+|{[^#]+})'
+with open('/home/damir/Python/files/pf.conf.oneline','r',encoding= 'utf-8', errors='ignore') as inpt:
 	TabList={}
 	#ListName=[]#list of all acl tables where the ip is located
 	#DSTDic={}
@@ -87,6 +87,16 @@ with open('/home/damir/Python/files/pf.conf',"r",encoding='utf-8', errors='ignor
 			print(ACLString)
 			obj=table(ACLString)
 			TabList[obj.name]=obj
+
+		elif re.search(fromto, ACLString)!=None:
+			m = re.match(fromto, ACLString)
+			From = m.group(1)
+			To = m.group(2)
+			print(From)#from
+			print(To)#to
+			if From == 'any' or To == 'any':
+				print(ACLString)
+			
 
 
 			#FinalList = IPStringTransform(ACLString)
