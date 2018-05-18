@@ -25,7 +25,7 @@ class Table():
 		self.name=string
 		self.clsnum.append(self.name)
 	def __del__(self):
-		print('Deleted')
+		#print('Deleted')
 		self.clsnum.remove(self.name)
     
 
@@ -73,6 +73,41 @@ def table(ACLString):
 	print(table_string.name, table_string.nets,table_string.notnets, table_string.leftovers, sep='\n')
 	return table_string
 
+def IsIn(ip,List):
+	for i in List:
+		if isinstance(i,ipaddress.IPv4Network):
+			if ip in i:
+				return True
+		else:
+			for j in *i:
+				if ip in j.nets and ip not in j.notnets:
+					return True
+		return False
+
+	#else:
+
+
+def MakeMeList(Str):
+	'''
+	принимает на вход строку c ip и именами table
+	выдает список IPNetwork и имен table
+	'''
+	Str = Str.replace('}','')
+	Str = Str.replace('{','')
+	Str = Str.replace(',','')
+	StrList = Str.split()
+	for item in range(len(StrList)):
+		try:
+			StrList[item] = ipaddress.ip_network(StrList[item])
+			#print(StrList[item])
+		except ValueError:
+			
+			print('Error')
+
+
+	return StrList
+
+
 
 fromto=r'(?<!#)(?:[^#]*)from\s+([^#{}\s]+|{[^#]+})\s+to\s+([^#{}\s]+|{[^#]+})'
 with open('/home/damir/Python/files/pf.conf.oneline','r',encoding= 'utf-8', errors='ignore') as inpt:
@@ -84,19 +119,22 @@ with open('/home/damir/Python/files/pf.conf.oneline','r',encoding= 'utf-8', erro
 		ACLString = ACLString.rstrip()
 		
 		if re.search(r'(?<=^table)\s*([^\s]+)\s*(?={)',ACLString)!=None:#searching for acl tables
-			print(ACLString)
+			#print(ACLString)
 			obj=table(ACLString)
 			TabList[obj.name]=obj
 
 		elif re.search(fromto, ACLString)!=None:
+			#print(ACLString)
 			m = re.match(fromto, ACLString)
 			From = m.group(1)
 			To = m.group(2)
-			print(From)#from
-			print(To)#to
+			#print(From)#from
+			#print(To)#to
 			if From == 'any' or To == 'any':
 				print(ACLString)
-			
+			else:
+				
+
 
 
 			#FinalList = IPStringTransform(ACLString)
