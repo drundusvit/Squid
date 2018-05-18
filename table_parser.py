@@ -2,7 +2,7 @@ import re
 import ipaddress
 import socket
 
-def Table(IPParts):
+def Table(IPParts,dict=[]):
 	IPParts = re.sub(r'[{}\s]','',IPParts)#удаляет ненужные символы
 	IPParts = re.sub(r',',' ',IPParts)
 	IPTable = re.split(r'\s',IPParts)
@@ -11,7 +11,7 @@ def Table(IPParts):
 	IPTable = list(map(lambda x: GetIP(x), IPTable))
 	NegTable = list(map(lambda x: IPStringTransform(x),NegTable))
 	NegTable = ExpandList(NegTable)
-	IPTable = list(map(lambda x: IPStringTransform(x),IPTable))
+	IPTable = list(map(lambda x: IPStringTransform(x,dict),IPTable))
 	IPTable = ExpandList(IPTable)
 	Rez = SubTract(IPTable, NegTable)
 	Rez = list(ipaddress.collapse_addresses(Rez))
@@ -30,11 +30,11 @@ def IPRepr(num):
 	return num
 
 def GetIP(arg):
-	if re.search(r'[a-zA-Z]+', arg):
+	if re.search(r'^[a-zA-Z.]+$', arg):
 		return socket.gethostbyname(arg)
 	return arg
 
-def IPStringTransform(x):
+def IPStringTransform(x,dict=[]):
 	
 	PatternIp = r'\b(?<!\!)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?:/[0-9]+)?\b'#REG для ip адресов и сеток
 	PatternRange = r'\b[0-9]+(?:\.[0-9]+){3}\s*-\s*[0-9]+(?:\.[0-9]+){3}\b'
@@ -46,6 +46,8 @@ def IPStringTransform(x):
 		m = re.match(pattern,x)
 		cand = list(ipaddress.summarize_address_range(ipaddress.IPv4Address(m.group(1)), ipaddress.IPv4Address(m.group(2))))
 		return cand
+	elif x in dict:
+		return dict[x]
 	return x
 
 def NotIPRange(xList):
@@ -93,6 +95,11 @@ def ExpandList(rez):
 			final.append(x)
 	return final
 
+Rez = Table('{ 85.114.2.0/24, !85.114.4.190, !79.142.85.16/30, 1/8, ping.eu, 8.8.8.0/24, 10.6.7.6-10.6.7.10, 10.2.34.2 - 10.2.34.4 }')
 
+TableDict = {'<teamviewer>':Rez}
 
-Rez = Table('{ 0.0.0.0/0, !10.0.0.0/8, !	 172.16.0.0/12,!	1.0/16, ! 192.168.0.0/16, !85.114.0.0/24, !85.114.2.0/24, !85.114.4.190, !79.142.85.16/30, 1/8, ping.eu, 8.8.8.8, 10.6.7.6-10.6.7.10, 10.2.34.2 - 10.2.34.4 }')
+Str = '{ <teamviewer>, 46.163.100.220 , !8.8.8.9}'
+
+#print(TableDict)
+print(Table(Str,TableDict))
