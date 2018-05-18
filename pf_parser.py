@@ -27,7 +27,6 @@ class Table():
 	def __del__(self):
 		#print('Deleted')
 		self.clsnum.remove(self.name)
-    
 
 
 def expand_ranges(IPRanges,ACLString):#
