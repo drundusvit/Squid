@@ -111,16 +111,15 @@ def MakeMeList(Str):
 fromto=r'(?<!#)(?:[^#]*)from\s+([^#{}\s]+|{[^#]+})\s+to\s+([^#{}\s]+|{[^#]+})'
 with open('/home/damir/Python/files/pf.conf.oneline','r',encoding= 'utf-8', errors='ignore') as inpt:
 	TabList={}
-	#ListName=[]#list of all acl tables where the ip is located
-	#DSTDic={}
-	#https=[]
+	
 	for ACLString in inpt:#read the file line by line
 		ACLString = ACLString.rstrip()
 		
-		if re.search(r'(?<=^table)\s*([^\s]+)\s*(?={)',ACLString)!=None:#searching for acl tables
+		if re.search(r'(?<=^table)\s*([^\s#]+)\s*(?=[^#])([^#]*)(?=#|$)',ACLString)!=None:#searching for acl tables
 			#print(ACLString)
-			obj=table(ACLString)
-			TabList[obj.name]=obj
+			obj = re.search(r'(?<=^table)\s*([^\s#]+)\s*(?=[^#])([^#]*)(?=#|$)', ACLString)
+			TabList[obj.group()1] = obj.group(2)
+			
 
 		elif re.search(fromto, ACLString)!=None:
 			#print(ACLString)
