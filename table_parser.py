@@ -1,11 +1,16 @@
 import re
 import ipaddress
 import socket
+from paramiko import SSHClient
+from scp import SCPClient
 
-def Table(IPParts,dict=[]):
+
+def Table(IPParts,dict={}):
 	IPParts = re.sub(r'[{}\s]','',IPParts)#удаляет ненужные символы
 	IPParts = re.sub(r',',' ',IPParts)
 	IPTable = re.split(r'\s',IPParts)
+	if IPTable[0] == 'any':
+		return [ipaddress.ip_network('0.0.0.0/0')]
 	IPTable = list(map(lambda x: IPRepr(x), IPTable))
 	NegTable, IPTable = NotIPRange(IPTable)
 	IPTable = list(map(lambda x: GetIP(x), IPTable))
@@ -13,8 +18,12 @@ def Table(IPParts,dict=[]):
 	NegTable = ExpandList(NegTable)
 	IPTable = list(map(lambda x: IPStringTransform(x,dict),IPTable))
 	IPTable = ExpandList(IPTable)
-	Rez = SubTract(IPTable, NegTable)
-	Rez = list(ipaddress.collapse_addresses(Rez))
+	try:
+		Rez = SubTract(IPTable, NegTable)
+		Rez = list(ipaddress.collapse_addresses(Rez))
+	except:
+		print('\n'*3)
+		print('There are letters in the row. Fix the definition of the table:',IPTable)
 	return Rez
 
 def IPRepr(num):
@@ -30,11 +39,11 @@ def IPRepr(num):
 	return num
 
 def GetIP(arg):
-	if re.search(r'^[a-zA-Z.]+$', arg):
+	if re.search(r'\.[a-z]+$', arg):
 		return socket.gethostbyname(arg)
 	return arg
 
-def IPStringTransform(x,dict=[]):
+def IPStringTransform(x,dict={}):
 	
 	PatternIp = r'\b(?<!\!)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(?:/[0-9]+)?\b'#REG для ip адресов и сеток
 	PatternRange = r'\b[0-9]+(?:\.[0-9]+){3}\s*-\s*[0-9]+(?:\.[0-9]+){3}\b'
@@ -95,11 +104,61 @@ def ExpandList(rez):
 			final.append(x)
 	return final
 
-Rez = Table('{ 85.114.2.0/24, !85.114.4.190, !79.142.85.16/30, 1/8, ping.eu, 8.8.8.0/24, 10.6.7.6-10.6.7.10, 10.2.34.2 - 10.2.34.4 }')
+def ErrorCheck(y,x):
+	try:
+		if y in x:
+			return True
+		else:
+			return False
+	except:
+		print('Please, check table definition:',x)
+		print('\n'*3)
+		return True
 
-TableDict = {'<teamviewer>':Rez}
 
-Str = '{ <teamviewer>, 46.163.100.220 , !8.8.8.9}'
+Inpt = ipaddress.IPv4Address('10.13.252.123')
 
-#print(TableDict)
-print(Table(Str,TableDict))
+
+h_petr = SSHClient()
+h_petr.load_system_host_keys()
+h_petr.connect('85.114.0.138',
+				password='Gai2juch',
+				username='mingalimov')
+
+print(h_petr.get_transport())
+
+squid='/usr/local/etc/squid/squid.conf'
+pfconf='/etc/pf.conf'
+
+with SCPClient(h_petr.get_transport()) as Conf:
+
+	Conf.get(pfconf, 
+				local_path='/home/damir/Python/files/pf.conf')
+
+
+fromto=r'(?<!#)(?:[^#]*)from\s+([^#{}\s]+|{[^#]+})\s+to\s+([^#{}\s]+|{[^#port]+})'
+with open('/home/damir/Python/files/pf.conf','r',encoding= 'utf-8', errors='ignore') as inpt:
+	TabList={}
+	
+	for ACLString in inpt:#read the file line by line
+		ACLString = ACLString.rstrip()
+		if re.search(r'^\s*#', ACLString)!=None:
+			continue
+		
+		if re.search(r'(?<=^table)\s*([^\s#]+)\s*(?=[^#])([^#]*)(?=#|$)',ACLString)!=None:#searching for acl tables
+			obj = re.search(r'(?<=^table)\s*([^\s#]+)\s*(?=[^#])([^#]*)(?=#|$)', ACLString)
+			TabList[obj.group(1)] = Table(obj.group(2))
+		elif re.search(fromto, ACLString)!=None:
+			
+			m = re.match(fromto, ACLString)
+			From = m.group(1)
+			To = m.group(2)
+			
+			
+			FromList = Table(From,TabList)
+			ToList = Table(To,TabList)
+			if any(map(lambda x: ErrorCheck(Inpt,x),FromList)):
+				print(ACLString)
+			elif any(map(lambda x: ErrorCheck(Inpt,x),ToList)):
+				print(ACLString)
+
