@@ -116,7 +116,8 @@ def ErrorCheck(y,x):
 		return True
 
 
-Inpt = ipaddress.IPv4Address('10.13.252.123')
+Vvod = '10.13.252.123'
+Inpt = ipaddress.IPv4Address(Vvod)
 
 
 h_petr = SSHClient()
@@ -158,7 +159,6 @@ with open('/home/damir/Python/files/pf.conf','r',encoding= 'utf-8', errors='igno
 			FromList = Table(From,TabList)
 			ToList = Table(To,TabList)
 			if any(map(lambda x: ErrorCheck(Inpt,x),FromList)):
-				print(ACLString)
-			elif any(map(lambda x: ErrorCheck(Inpt,x),ToList)):
-				print(ACLString)
-
+				print(re.sub(From,Vvod,ACLString))
+			#elif any(map(lambda x: ErrorCheck(Inpt,x),ToList)):
+			#	print(ACLString)
