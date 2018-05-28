@@ -123,8 +123,8 @@ Inpt = ipaddress.IPv4Address(Vvod)
 h_petr = SSHClient()
 h_petr.load_system_host_keys()
 h_petr.connect('85.114.0.138',
-				password='Gai2juch',
-				username='mingalimov')
+				password='',
+				username='')
 
 print(h_petr.get_transport())
 
